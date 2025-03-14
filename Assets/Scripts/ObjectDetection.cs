@@ -45,6 +45,10 @@ public class ObjectDetection : MonoBehaviour
 
 
             }
+            if (ARTrackedObject.referenceObject.name == "Box")
+            {
+                animation.gameObject.SetActive(true);
+            }
         }
 
         // Handle updated tracked objects
