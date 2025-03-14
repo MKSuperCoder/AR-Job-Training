@@ -30,3 +30,8 @@ MonoBehaviour:
     m_Name: Bottle
     m_Entries:
     - {fileID: -6831329414088302235, guid: 2095177972cf64c07b203a154216918e, type: 3}
+  - m_GuidLow: 5467958953045572775
+    m_GuidHigh: 7301602105270503583
+    m_Name: Box
+    m_Entries:
+    - {fileID: -6831329414088302235, guid: b464d971f11944c9ba5c1733a35415e0, type: 3}
