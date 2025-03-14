@@ -14,21 +14,21 @@ public class MoveBoxes : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        MoveBox();
     }
     public void MoveBox()
     {
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < 3; i++)
         {
-            box.transform.Translate(Vector3.up);
+            box.transform.Translate(Vector3.up * Time.deltaTime);
         }
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < 3; i++)
         {
-            box.transform.Translate(Vector3.left);
+            box.transform.Translate(Vector3.left * Time.deltaTime);
         }
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < 3; i++)
         {
-            box.transform.Translate(Vector3.down);
+            box.transform.Translate(Vector3.down * Time.deltaTime);
         }
 
     }
