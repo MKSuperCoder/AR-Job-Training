@@ -6,7 +6,7 @@ using UnityEngine.XR.ARSubsystems;
 
 public class ImageDetection : MonoBehaviour
 {
-    public ARTrackedImageManager imageManager; // Manages tracked AR images
+   /* public ARTrackedImageManager imageManager; // Manages tracked AR images
     public GameObject animation;
 
     void OnEnable()
@@ -48,4 +48,5 @@ public class ImageDetection : MonoBehaviour
             animation.gameObject.SetActive(false);
         }
     }
+   */
 }
