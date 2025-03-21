@@ -11,9 +11,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/BroomSweep.unity
     guid: 5c10fd0614393443bb8736b1bd9c49d7
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/MoveBoxes.unity
     guid: d2d3b86e43dc642739eeb9b0b6660be2
+  - enabled: 1
+    path: Assets/Scenes/sampleScene.unity
+    guid: 8fdc2710ba6444f8a9dbe5601a04c94d
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 6ee72d15cf39dd748a13eac57397b9af,
       type: 2}
