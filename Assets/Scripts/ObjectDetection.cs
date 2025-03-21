@@ -71,5 +71,4 @@ public class ObjectDetection : MonoBehaviour
     }
 }
 
-    // Coroutine to spawn the plate and yellow spot at the object's position
-   
+  
