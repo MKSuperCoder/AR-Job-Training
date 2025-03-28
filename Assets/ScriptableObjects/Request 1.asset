@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Request 1
   m_EditorClassIdentifier: 
   request: Make me a strong, fresh coffee.
-  stepTargets:
-  - {fileID: 0}
+  stepTargetNames:
+  - StrengthButton
+  - Fresh
+  - Brew

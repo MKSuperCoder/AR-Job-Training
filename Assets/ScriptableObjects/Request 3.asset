@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: Request 3
   m_EditorClassIdentifier: 
   request: Make a strong cup of coffee
+  stepTargetNames: []

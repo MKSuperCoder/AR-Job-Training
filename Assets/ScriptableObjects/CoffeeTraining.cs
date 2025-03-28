@@ -7,9 +7,10 @@ public class CoffeeTraining : MonoBehaviour
     [SerializeField] TMP_Text requestText;
     [SerializeField] MoveArrow arrow;
 
-    int requestIndex = 0;
-    int stepIndex = 0;
-    RequestSO currentRequest;
+    private int requestIndex = 0;
+    private int stepIndex = 0;
+    private GameObject[] resolvedStepTargets;
+    private RequestSO currentRequest;
 
     void Start()
     {
@@ -20,26 +21,48 @@ public class CoffeeTraining : MonoBehaviour
     {
         currentRequest = requests[requestIndex];
         requestText.text = currentRequest.GetRequest();
+
+        // Convert string names to GameObjects
+        string[] targetNames = currentRequest.GetStepTargetNames();
+        resolvedStepTargets = new GameObject[targetNames.Length];
+        for (int i = 0; i < targetNames.Length; i++)
+        {
+            GameObject found = GameObject.Find(targetNames[i]);
+            if (found != null)
+                resolvedStepTargets[i] = found;
+            else
+                Debug.LogError($"Could not find GameObject named '{targetNames[i]}'");
+        }
+
         stepIndex = 0;
         MoveToNextStep();
     }
 
     public void MoveToNextStep()
     {
-        if (stepIndex < currentRequest.GetSteps().Length)
+        if (stepIndex < resolvedStepTargets.Length)
         {
-            arrow.PointTo(currentRequest.GetSteps()[stepIndex]);
+            arrow.PointTo(resolvedStepTargets[stepIndex]);
         }
         else
         {
             Debug.Log("Request complete!");
-            // Optionally go to the next request or end
+            requestText.text = "Good job! Request complete.";
         }
     }
 
-    public void OnCorrectButtonPressed()
+    public void OnCorrectButtonPressed(GameObject buttonPressed)
     {
-        stepIndex++;
-        MoveToNextStep();
+        GameObject expectedButton = resolvedStepTargets[stepIndex];
+
+        if (buttonPressed == expectedButton)
+        {
+            stepIndex++;
+            MoveToNextStep();
+        }
+        else
+        {
+            Debug.Log("Wrong button pressed.");
+        }
     }
 }
