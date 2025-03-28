@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class CoffeeButton : MonoBehaviour
 {
@@ -9,7 +10,9 @@ public class CoffeeButton : MonoBehaviour
     public CoffeeTraining trainer;
     public TMP_Text strengthText;
     public TMP_Text typeText;
-    public GameObject brewedCoffee;
+    public GameObject brewedCoffee;      // Shows for 2 seconds
+    public GameObject servedCoffee;      // Shown after 2 seconds
+    public GameObject cup;
 
     private int strengthLevel = 0;
 
@@ -22,6 +25,7 @@ public class CoffeeButton : MonoBehaviour
             {
                 if (hit.collider.gameObject == this.gameObject)
                 {
+                    Debug.Log($"You clicked or touched {gameObject.name}!");
                     OnClick();
                 }
             }
@@ -57,9 +61,52 @@ public class CoffeeButton : MonoBehaviour
                 break;
 
             case ButtonType.Brew:
-                if (brewedCoffee != null)
-                    brewedCoffee.SetActive(true);
+                StartCoroutine(HandleBrewSequence());
                 break;
         }
     }
+    private IEnumerator HandleBrewSequence()
+    {
+        if (brewedCoffee != null)
+            brewedCoffee.SetActive(true);
+
+        yield return new WaitForSeconds(2f);
+
+        if (brewedCoffee != null)
+            brewedCoffee.SetActive(false);
+
+        if (servedCoffee != null)
+        {
+            servedCoffee.SetActive(true);
+            yield return new WaitForSeconds(2f);
+            StartCoroutine(MoveCup(cup, 0.869f));
+        }
+            
+    }
+    
+    private IEnumerator MoveCup(GameObject cup, float targetX)
+    {
+        Vector3 start = cup.transform.position;
+        Vector3 end = start + new Vector3(0.8f, 0, 0); // total movement in x-axis
+        float duration = 1f; // move over 1 second
+        float t = 0f;
+
+        while (t < duration)
+        {
+            cup.transform.position = Vector3.Lerp(start, end, t / duration);
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        cup.transform.position = end;
+
+        // Enable gravity
+        Rigidbody rb = cup.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+        }
+    }
+
 }

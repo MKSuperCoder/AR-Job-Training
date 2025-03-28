@@ -37,7 +37,7 @@ public class PlaceObject : MonoBehaviour
 
     private void FingerDown(EnhancedTouch.Finger finger)
     {
-        if (finger.index != 0) return;
+        /*if (finger.index != 0) return;
 
         if (aRRaycastManager.Raycast(finger.currentTouch.screenPosition,
             hits, TrackableType.PlaneWithinPolygon))
@@ -47,7 +47,7 @@ public class PlaceObject : MonoBehaviour
                 Pose pose = hit.pose;
                 GameObject obj = Instantiate(prefab, pose.position, pose.rotation);
 
-                /*if (aRPlaneManager.GetPlane(hit.trackableId).alignment == PlaneAlignment.HorizontalUp)
+                if (aRPlaneManager.GetPlane(hit.trackableId).alignment == PlaneAlignment.HorizontalUp)
                 {
                     Vector3 position = obj.transform.position;
                     
@@ -58,8 +58,8 @@ public class PlaceObject : MonoBehaviour
                    Vector3 scaledEuler = Vector3.Scale(targetRotationEuler, obj.transform.up.normalized);
                    Quaternion targetRotation = Quaternion.Euler(scaledEuler);
                     obj.transform.rotation = obj.transform.rotation * targetRotation;
-                } */
-            }
-        }
+                }  
+            } 
+        }*/
     }
 }

@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: af33b4d30258f4189ac80e270cb8c203
+  - enabled: 1
     path: Assets/Scenes/BalloonGameMediumDifficulty.unity
     guid: dc7e9adeeeadb435c98d3f9d62a50cdd
   - enabled: 1
