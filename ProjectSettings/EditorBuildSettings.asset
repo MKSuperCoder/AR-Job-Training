@@ -17,6 +17,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/sampleScene.unity
     guid: 8fdc2710ba6444f8a9dbe5601a04c94d
+  - enabled: 1
+    path: Assets/Scenes/GameSelection.unity
+    guid: f4683539bb55fd34ba3cf957bebf7db4
+  - enabled: 1
+    path: Assets/Scenes/BalloonGameDifficultySelection.unity
+    guid: af82030e535387a409102279daf93d15
+  - enabled: 1
+    path: Assets/Scenes/CoffeeTraining.unity
+    guid: 8fc7e670aa7b34765b7db2eb051f5888
+  - enabled: 1
+    path: Assets/Scenes/ScenarioSelection.unity
+    guid: 1f28d340770007741a76b4d4f46be931
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 6ee72d15cf39dd748a13eac57397b9af,
       type: 2}
