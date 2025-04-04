@@ -162,7 +162,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
     Android: com.unity.template.ar_mobile
-    Standalone: com.unity.template.ar-mobile
+    Standalone: com.unity.template.arapp
     iPhone: com.unity.template.armobile
   buildNumber:
     Bratwurst: 0
@@ -188,7 +188,7 @@ PlayerSettings:
   strictShaderVariantMatching: 0
   VertexChannelCompressionMask: 4054
   iPhoneSdkVersion: 988
-  iOSTargetOSVersionString: 12.0
+  iOSTargetOSVersionString: 13.0
   tvOSSdkVersion: 0
   tvOSRequireExtendedGameController: 0
   tvOSTargetOSVersionString: 12.0
