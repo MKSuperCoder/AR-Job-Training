@@ -1,0 +1,32 @@
+{
+  "project_info": {
+    "project_number": "1076830223759",
+    "firebase_url": "https://ar-job-training-app-default-rtdb.firebaseio.com",
+    "project_id": "ar-job-training-app",
+    "storage_bucket": "ar-job-training-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1076830223759:ios:59bdbd97d5d9678a6d1ffa",
+        "android_client_info": {
+          "package_name": "com.unity.template.armobile"
+        }
+      },
+      "api_key": [
+        {
+          "current_key": "AIzaSyDd5Hu_jcBvC0Ux9KwB7PACVnPB8XUmSqQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 0
+        },
+        "appinvite_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
