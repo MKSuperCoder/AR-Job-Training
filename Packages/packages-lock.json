@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.unity.burst": {
-      "version": "1.8.15",
+      "version": "1.8.18",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -36,11 +36,11 @@
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.xr.arfoundation": "5.1.4",
-        "com.unity.xr.arkit": "5.1.4",
-        "com.unity.xr.arcore": "5.1.4",
+        "com.unity.xr.arfoundation": "5.1.5",
+        "com.unity.xr.arkit": "5.1.5",
+        "com.unity.xr.arcore": "5.1.5",
         "com.unity.xr.magicleap": "7.0.0",
-        "com.unity.xr.openxr": "1.11.0"
+        "com.unity.xr.openxr": "1.13.2"
       }
     },
     "com.unity.ide.visualstudio": {
@@ -299,7 +299,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.legacyinputhelpers": {
-      "version": "2.1.10",
+      "version": "2.1.11",
       "depth": 1,
       "source": "registry",
       "dependencies": {
