@@ -8,22 +8,39 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1076830223759:ios:59bdbd97d5d9678a6d1ffa",
+        "mobilesdk_app_id": "1:1076830223759:android:84cd304a0467d7816d1ffa",
+        "android_client_info": {
+          "package_name": "com.unity.template.arapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1MzUsjfavCX7ZfZwM4DA6ftmT50PEA-Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1076830223759:android:bfa6f07fe6be38bb6d1ffa",
         "android_client_info": {
           "package_name": "com.unity.template.armobile"
         }
       },
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDd5Hu_jcBvC0Ux9KwB7PACVnPB8XUmSqQ"
+          "current_key": "AIzaSyC1MzUsjfavCX7ZfZwM4DA6ftmT50PEA-Y"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 0
-        },
         "appinvite_service": {
-          "status": 1
+          "other_platform_oauth_client": []
         }
       }
     }
