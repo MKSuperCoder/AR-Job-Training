@@ -62,12 +62,14 @@ public class SignupManager : MonoBehaviour
         var registerTask = auth.CreateUserWithEmailAndPasswordAsync(email, password);
         yield return new WaitUntil(() => registerTask.IsCompleted);
 
-        foreach (var e in registerTask.Exception.Flatten().InnerExceptions)
+        if (registerTask.IsFaulted || registerTask.IsCanceled)
         {
-            Debug.LogError("Sign-up error: " + e.Message);
-            
+            foreach (var e in registerTask.Exception.Flatten().InnerExceptions)
+            {
+                Debug.LogError("Sign-up error: " + e.Message);
+            }
+            yield break;
         }
-        yield break;
 
         Firebase.Auth.AuthResult result = registerTask.Result;
         FirebaseUser newUser = result.User;
@@ -96,6 +98,6 @@ public class SignupManager : MonoBehaviour
             
             SceneManager.LoadScene("MainMenu");
         }
-        
+        SceneManager.LoadScene("MainMenu");
     }
 }
