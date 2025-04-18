@@ -17,11 +17,12 @@ public class ChatGPTIntegration : MonoBehaviour
 
     void Start()
     {
-        sendButton.onClick.AddListener(WhenSendButtonClicked); // Waits for button to be pressed
+        sendButton.onClick.AddListener(HandleSendButtonClick); // Waits for button to be pressed
     }
     
     // Action when button is pressed
-    public void WhenSendButtonClicked()
+    public void HandleSendButtonClick()
+
     {
         string prompt = userInputField.text; // User prompt
         if (!string.IsNullOrEmpty(prompt))
