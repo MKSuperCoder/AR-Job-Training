@@ -43,6 +43,8 @@ public class ChatGPTIntegration : MonoBehaviour
         };
         
         // Convert the request object to JSON using Newtonsoft.Json
+        // TODO: Add support for system messages or role-based chat context
+
         string jsonData = JsonConvert.SerializeObject(requestData);
         Debug.Log("Sending JSON: " + jsonData);
 
