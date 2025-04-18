@@ -62,12 +62,12 @@ public class SignupManager : MonoBehaviour
         var registerTask = auth.CreateUserWithEmailAndPasswordAsync(email, password);
         yield return new WaitUntil(() => registerTask.IsCompleted);
 
-        if (registerTask.IsFaulted || registerTask.IsCanceled)
+        foreach (var e in registerTask.Exception.Flatten().InnerExceptions)
         {
-            Debug.LogError("Sign-up failed: " + registerTask.Exception);
+            Debug.LogError("Sign-up error: " + e.Message);
             
-            yield break;
         }
+        yield break;
 
         Firebase.Auth.AuthResult result = registerTask.Result;
         FirebaseUser newUser = result.User;
