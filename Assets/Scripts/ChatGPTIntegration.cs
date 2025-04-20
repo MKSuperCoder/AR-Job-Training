@@ -11,7 +11,7 @@ public class ChatGPTIntegration : MonoBehaviour
     public Button sendButton;
     public TextMeshProUGUI responseText;
 
-    private string apiKey = ""; // API key goes here 
+    private string apiKey = "It's working, I'll add it back once my teammate sets the repository to private"; // API key goes here 
 
     private string apiURL = "https://api.openai.com/v1/chat/completions";
 
