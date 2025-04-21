@@ -21,6 +21,7 @@ public class SignupManager : MonoBehaviour
     private FirebaseAuth auth;
     private FirebaseFirestore db;
 
+
     void Start()
     {
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
