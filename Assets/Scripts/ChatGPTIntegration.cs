@@ -11,7 +11,7 @@ public class ChatGPTIntegration : MonoBehaviour
     public Button sendButton;
     public TextMeshProUGUI responseText;
 
-    private string apiKey = "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"; // API key goes here 
+    private string apiKey = "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"; // API key goes here. 
 
     private string apiURL = "https://api.openai.com/v1/chat/completions";
 
