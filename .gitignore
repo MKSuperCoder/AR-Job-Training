@@ -77,3 +77,5 @@ Assets/Firebase/Plugins/x86_64/FirebaseCppApp-12_8_0.bundle
 Assets/Firebase/Plugins/x86_64/FirebaseCppApp-12_8_0.so
 .DS_Store
 .DS_Store
+
+.env

@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine.Networking;
 using System.Collections;
 using Newtonsoft.Json; 
+using System.IO;
 
 public class ChatGPTIntegration : MonoBehaviour
 {
@@ -11,14 +12,29 @@ public class ChatGPTIntegration : MonoBehaviour
     public Button sendButton;
     public TextMeshProUGUI responseText;
 
-    private string apiKey = "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"; // API key goes here. 
+    private string apiKey = ""; // API key goes here. 
 
     private string apiURL = "https://api.openai.com/v1/chat/completions";
 
-    void Start()
+void Start()
+{
+    string envPath = Path.Combine(Application.streamingAssetsPath, ".env");
+    Debug.Log("Reading .env from: " + envPath);
+
+    var env = EnvLoader.LoadEnv(envPath);
+    if (env.ContainsKey("OPENAI_API_KEY"))
     {
-        sendButton.onClick.AddListener(HandleSendButtonClick); // Waits for button to be pressed
+        apiKey = env["OPENAI_API_KEY"];
+        Debug.Log("API key loaded from .env");
     }
+    else
+    {
+        Debug.LogWarning("API key not found in .env file!");
+    }
+
+    sendButton.onClick.AddListener(HandleSendButtonClick);
+}
+
     
     // Action when button is pressed
     public void HandleSendButtonClick()
@@ -58,6 +74,8 @@ public class ChatGPTIntegration : MonoBehaviour
         // Set headers
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Authorization", "Bearer " + apiKey);
+        Debug.Log("Authorization Header: Bearer " + apiKey);
+
 
         // Send the request and wait for the response 
         yield return request.SendWebRequest();
