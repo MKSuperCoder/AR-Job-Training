@@ -26,7 +26,7 @@ public class LoginManager : MonoBehaviour
 
     public void OnLoginClick()
     {
-        string username = usernameInput.text.Trim().ToLower(); // Optional: case-insensitive
+        string username = usernameInput.text.Trim(); 
         string password = passwordInput.text;
 
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
@@ -85,7 +85,7 @@ public class LoginManager : MonoBehaviour
         else
         {
             messageText.text = "Login successful!";
-            SceneManager.LoadScene("MainMenu");
+            SceneManager.LoadScene("Home");
         }
     }
 

@@ -1,16 +1,22 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using Firebase.Auth;
 using Firebase.Firestore;
 using Firebase.Extensions;
 
-public class HomeManager : MonoBehaviour
+public class ProfileManager : MonoBehaviour
 {
-    [SerializeField] TMP_Text welcomeText;
+    [SerializeField] TMP_Text name;
+    [SerializeField] TMP_Text age;
+    [SerializeField] TMP_Text taskCompletionRate;
+    [SerializeField] TMP_Text taskAccuracy;
+    [SerializeField] TMP_Text level;
 
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
-
+    // Start is called before the first frame update
     void Start()
     {
         auth = FirebaseAuth.DefaultInstance;
@@ -20,10 +26,7 @@ public class HomeManager : MonoBehaviour
         {
             LoadUserName(auth.CurrentUser.UserId);
         }
-        else
-        {
-            welcomeText.text = "Welcome!";
-        }
+        
     }
 
     private void LoadUserName(string userId)
@@ -32,16 +35,15 @@ public class HomeManager : MonoBehaviour
         {
             if (task.IsCompletedSuccessfully && task.Result.Exists)
             {
-                string username = task.Result.GetValue<string>("username");
-                welcomeText.text = $"Welcome, {username}!";
+                string username = task.Result.GetValue<string>("name");
+                name.text = $"Name: {username}";
+                string userAge = task.Result.GetValue<string>("age");
+                age.text = $"Age: {userAge}";
             }
-            else
-            {
-                welcomeText.text = "Welcome!";
-            }
+            
         });
     }
-  
+
     public void Logout()
     {
         auth.SignOut();

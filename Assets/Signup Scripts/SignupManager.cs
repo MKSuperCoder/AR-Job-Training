@@ -83,6 +83,7 @@ public class SignupManager : MonoBehaviour
             { "age", age },
             { "username", username },
             { "email", email },
+            { "password", password },
             { "createdAt", Timestamp.GetCurrentTimestamp() }
         };
 
