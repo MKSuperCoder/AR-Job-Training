@@ -21,6 +21,7 @@ public class SignupManager : MonoBehaviour
     private FirebaseAuth auth;
     private FirebaseFirestore db;
 
+
     void Start()
     {
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
@@ -82,6 +83,7 @@ public class SignupManager : MonoBehaviour
             { "age", age },
             { "username", username },
             { "email", email },
+            { "password", password },
             { "createdAt", Timestamp.GetCurrentTimestamp() }
         };
 
