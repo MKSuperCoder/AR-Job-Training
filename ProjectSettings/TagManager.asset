@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Balloon
   - Yellow
+  - ARButton
   layers:
   - Default
   - TransparentFX

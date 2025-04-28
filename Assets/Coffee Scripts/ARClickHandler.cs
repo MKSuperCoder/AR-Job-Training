@@ -34,7 +34,7 @@ public class ARClickHandler : MonoBehaviour
                 if (hit.transform.CompareTag("ARButton"))
                 {
                     Debug.Log("AR 3D button clicked!");
-                    TriggerYourFunction();
+                    TriggerYourFunction(hit.transform.gameObject);
                 }
             }
         }
@@ -42,10 +42,19 @@ public class ARClickHandler : MonoBehaviour
     void OnMouseDown()
     {
         Debug.Log("3D object clicked!");
-        TriggerYourFunction();
+        TriggerYourFunction(gameObject);
     }
-    void TriggerYourFunction()
+    void TriggerYourFunction(GameObject clickedObject)
     {
+        // Change the color of the clicked object
+        Renderer rend = clickedObject.GetComponent<Renderer>();
+        if (rend != null)
+        {
+            rend.material.color = Color.green; // Set your clicked color here
+        }
+
+        // (Optional) Reset color back after delay
+        StartCoroutine(ResetColor(clickedObject, 0.3f));
         switch (buttonType)
         {
             case ButtonType.Strength:
@@ -111,6 +120,16 @@ public class ARClickHandler : MonoBehaviour
         {
             rb.isKinematic = false;
             rb.useGravity = true;
+        }
+    }
+    IEnumerator ResetColor(GameObject clickedObject, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        Renderer rend = clickedObject.GetComponent<Renderer>();
+        if (rend != null)
+        {
+            rend.material.color = Color.white; // Reset to original color (or you can store originalColor if you want)
         }
     }
 }
