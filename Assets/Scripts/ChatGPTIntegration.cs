@@ -23,14 +23,15 @@ void Start()
 
     var env = EnvLoader.LoadEnv(envPath);
     if (env.ContainsKey("OPENAI_API_KEY"))
-    {
-        apiKey = env["OPENAI_API_KEY"];
-        Debug.Log("API key loaded from .env");
-    }
-    else
-    {
-        Debug.LogWarning("API key not found in .env file!");
-    }
+{
+    apiKey = env["OPENAI_API_KEY"];
+    Debug.Log("API key loaded from .env: " + apiKey); // Debug output
+}
+else
+{
+    Debug.LogWarning("API key not found in .env file!");
+}
+
 
     sendButton.onClick.AddListener(HandleSendButtonClick);
 }
