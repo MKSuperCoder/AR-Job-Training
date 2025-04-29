@@ -9,6 +9,7 @@ using Firebase.Extensions;
 public class CoffeeMachineTrainingManager : MonoBehaviour
 {
     public TMP_Text customerRequestText; // Assign in Inspector
+    public TMP_Text instructionsText;
     public TMP_Text timerText;            // Assign in Inspector
     private ChatGPT chatGPT;
 
@@ -110,10 +111,41 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
 
     void SetupCustomerRequests()
     {
-        customerRequests.Add(new CustomerRequest { requestText = "Make a strong, fresh coffee", timeLimit = 60 });
-        customerRequests.Add(new CustomerRequest { requestText = "Make a mild, fresh coffee", timeLimit = 30 });
-        customerRequests.Add(new CustomerRequest { requestText = "Make a regular brew", timeLimit = 45 });
-        // Add more requests here
+        customerRequests.Add(new CustomerRequest
+        {
+            requestText = "Make a strong, fresh coffee",
+            timeLimit = 60,
+            instructions = new string[]
+            {
+            "Click on the strength button twice.",
+            "Click on fresh.",
+            "Click on brew."
+            }
+        });
+
+        customerRequests.Add(new CustomerRequest
+        {
+            requestText = "Make a mild, fresh coffee",
+            timeLimit = 30,
+            instructions = new string[]
+            {
+            "Click on the strength button once.",
+            "Click on fresh.",
+            "Click on brew."
+            }
+        });
+
+        customerRequests.Add(new CustomerRequest
+        {
+            requestText = "Make a regular brew",
+            timeLimit = 10,
+            instructions = new string[]
+            {
+            "Click on brew."
+            }
+        });
+
+        // Add more requests + steps if you want!
     }
 
     void PickRandomRequest()
@@ -124,6 +156,13 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
         customerRequestText.text = selectedRequest.requestText;
         timeRemaining = selectedRequest.timeLimit;
         isTimerRunning = true;
+
+        // Display instructions
+        instructionsText.text = "";
+        foreach (string step in selectedRequest.instructions)
+        {
+            instructionsText.text += "- " + step + "\n";
+        }
     }
 
     void UpdateTimerUI()
