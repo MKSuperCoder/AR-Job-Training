@@ -163,7 +163,7 @@ PlayerSettings:
   applicationIdentifier:
     Android: com.unity.template.ar_mobile
     Standalone: com.unity.template.arapp
-    iPhone: com.unity.template.arapp
+    iPhone: com.marcusswa.artrainer
   buildNumber:
     Bratwurst: 0
     Standalone: 0

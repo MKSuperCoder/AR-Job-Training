@@ -221,5 +221,9 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
         finalReportPanel.SetActive(true);
         finalReportText.text = "Session Complete!\n\n" + aiRecommendation;
     }
+    public void OnTaskCompleted()
+    {
+        SaveTaskResult(true, timeRemaining);
+    }
 
 }

@@ -62,6 +62,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ModuleLibrary.unity
     guid: 69b220e35527b466d98600acf047dcd9
+  - enabled: 1
+    path: Assets/Scenes/FoodServiceModule.unity
+    guid: a9190c005ac1446b98d7f4f53e18f2be
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 6ee72d15cf39dd748a13eac57397b9af,
       type: 2}

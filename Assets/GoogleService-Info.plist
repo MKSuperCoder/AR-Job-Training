@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.unity.template.arapp</string>
+	<string>com.marcusswa.artrainer</string>
 	<key>PROJECT_ID</key>
 	<string>ar-job-training-app</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,7 +25,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1076830223759:ios:abb25d4d0a1c00dd6d1ffa</string>
+	<string>1:1076830223759:ios:59b21d6f351a9a3a6d1ffa</string>
 	<key>DATABASE_URL</key>
 	<string>https://ar-job-training-app-default-rtdb.firebaseio.com</string>
 </dict>

@@ -5,7 +5,7 @@ using System.Collections;
 public class CoffeeButton : MonoBehaviour
 {
     public enum ButtonType { Strength, Fresh, Clean, Brew }
-
+    private Vector3 originalCupPosition;
     public ButtonType buttonType;
     public CoffeeTraining trainer;
     public TMP_Text strengthText;
@@ -67,6 +67,9 @@ public class CoffeeButton : MonoBehaviour
     }
     private IEnumerator HandleBrewSequence()
     {
+        if (cup != null)
+            originalCupPosition = cup.transform.position; // Store initial position
+
         if (brewedCoffee != null)
             brewedCoffee.SetActive(true);
 
@@ -80,6 +83,10 @@ public class CoffeeButton : MonoBehaviour
             servedCoffee.SetActive(true);
             yield return new WaitForSeconds(2f);
             StartCoroutine(MoveCup(cup, 0.869f));
+
+            // Reset cup after delay
+            yield return new WaitForSeconds(1.5f);
+            ResetCup();
         }
             
     }
@@ -108,5 +115,22 @@ public class CoffeeButton : MonoBehaviour
             rb.useGravity = true;
         }
     }
+    private void ResetCup()
+    {
+        if (cup != null)
+        {
+            cup.transform.position = originalCupPosition;
+
+            Rigidbody rb = cup.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.useGravity = false;
+                rb.isKinematic = true;
+            }
+        }
+    }
+
 
 }

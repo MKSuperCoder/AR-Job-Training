@@ -9,6 +9,7 @@ public class ARClickHandler : MonoBehaviour
 {
     public enum ButtonType { Strength, Fresh, Clean, Brew }
     public ButtonType buttonType;
+    private Vector3 originalCupPosition;
     private Camera arCamera;
     public TMP_Text strengthText;
     public TMP_Text typeText;
@@ -81,6 +82,9 @@ public class ARClickHandler : MonoBehaviour
     }
     private IEnumerator HandleBrewSequence()
     {
+        if (cup != null)
+            originalCupPosition = cup.transform.position; // Store initial position
+
         if (brewedCoffee != null)
             brewedCoffee.SetActive(true);
 
@@ -94,6 +98,17 @@ public class ARClickHandler : MonoBehaviour
             servedCoffee.SetActive(true);
             yield return new WaitForSeconds(2f);
             StartCoroutine(MoveCup(cup, 0.869f));
+
+            // Reset cup after delay
+            yield return new WaitForSeconds(1.5f);
+            ResetCup();
+
+            // Notify that task is complete
+            CoffeeMachineTrainingManager trainingManager = FindObjectOfType<CoffeeMachineTrainingManager>();
+            if (trainingManager != null)
+            {
+                trainingManager.OnTaskCompleted(); // trigger next task and save result
+            }
         }
 
     }
@@ -130,6 +145,22 @@ public class ARClickHandler : MonoBehaviour
         if (rend != null)
         {
             rend.material.color = Color.white; // Reset to original color (or you can store originalColor if you want)
+        }
+    }
+    private void ResetCup()
+    {
+        if (cup != null)
+        {
+            cup.transform.position = originalCupPosition;
+
+            Rigidbody rb = cup.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.useGravity = false;
+                rb.isKinematic = true;
+            }
         }
     }
 }
