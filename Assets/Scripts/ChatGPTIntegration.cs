@@ -43,7 +43,9 @@ else
     {
         string prompt = userInputField.text; // User prompt
         if (!string.IsNullOrEmpty(prompt))
-        {
+        {   
+            File.AppendAllText(Path.Combine(Application.persistentDataPath, "prompt_log.txt"), prompt + "\n"); // Log prompt to file
+
             StartCoroutine(SendRequest(prompt)); // Send prompt to GPT
             userInputField.text = "";
         }
