@@ -56,8 +56,11 @@ public class ARClickHandler : MonoBehaviour
 
         // (Optional) Reset color back after delay
         StartCoroutine(ResetColor(clickedObject, 0.3f));
-        switch (buttonType)
-        {
+        ARClickHandler handler = clickedObject.GetComponent<ARClickHandler>();
+        if (handler == null) return;
+
+        switch (handler.buttonType)
+        { 
             case ButtonType.Strength:
                 strengthLevel++;
                 if (strengthText != null)
@@ -162,5 +165,8 @@ public class ARClickHandler : MonoBehaviour
                 rb.isKinematic = true;
             }
         }
+
+        if (servedCoffee != null)
+            servedCoffee.SetActive(false);
     }
 }
