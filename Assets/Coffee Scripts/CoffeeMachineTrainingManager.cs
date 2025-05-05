@@ -5,84 +5,31 @@ using Firebase.Firestore;
 using Firebase.Auth;
 using Firebase.Extensions;
 
-
 public class CoffeeMachineTrainingManager : MonoBehaviour
 {
-    public TMP_Text customerRequestText; // Assign in Inspector
+    public TMP_Text customerRequestText;
     public TMP_Text instructionsText;
-    public TMP_Text timerText;            // Assign in Inspector
-    private ChatGPT chatGPT;
-
-    public List<CustomerRequest> customerRequests = new List<CustomerRequest>();
-
-    private float timeRemaining;
-    private bool isTimerRunning = false;
-    private FirebaseFirestore firestore;
-    private FirebaseAuth auth;
-    private int taskCounter = 0;
-    private int maxTasks = 5;
+    public TMP_Text timerText;
     public GameObject finalReportPanel;
     public TMP_Text finalReportText;
 
-    // To store each task's performance
-    private List<Dictionary<string, object>> taskResults = new List<Dictionary<string, object>>();
+    private ChatGPT chatGPT;
+    private FirebaseFirestore firestore;
+    private FirebaseAuth auth;
 
+    private float timeRemaining;
+    private bool isTimerRunning = false;
+
+    public List<CustomerRequest> customerRequests = new List<CustomerRequest>();
+    private List<Dictionary<string, object>> taskResults = new List<Dictionary<string, object>>();
+    private int taskCounter = 0;
+    private int maxTasks => customerRequests.Count;
 
     void Awake()
     {
         firestore = FirebaseFirestore.DefaultInstance;
         auth = FirebaseAuth.DefaultInstance;
         chatGPT = FindObjectOfType<ChatGPT>();
-    }
-    void SaveTaskResult(bool success, float timeLeft)
-    {
-        FirebaseUser user = auth.CurrentUser;
-        if (user == null)
-        {
-            Debug.LogWarning("User not logged in.");
-            return;
-        }
-
-        var taskData = new Dictionary<string, object>
-    {
-        { "request", customerRequestText.text },
-        { "completed", success },
-        { "timeRemaining", timeLeft },
-        { "timeTaken", (success ? (customerRequests.Find(r => r.requestText == customerRequestText.text).timeLimit - timeLeft) : null) },
-        { "timestamp", Timestamp.GetCurrentTimestamp() }
-    };
-
-        // Save to local list
-        taskResults.Add(taskData);
-
-        // Save to Firestore
-        firestore.Collection("users")
-                 .Document(user.UserId)
-                 .Collection("taskResults")
-                 .AddAsync(taskData)
-                 .ContinueWithOnMainThread(task =>
-                 {
-                     if (task.IsCompletedSuccessfully)
-                     {
-                         Debug.Log("Task result saved!");
-                     }
-                     else
-                     {
-                         Debug.LogError("Failed to save task result: " + task.Exception);
-                     }
-                 });
-
-        // Increment task counter
-        taskCounter++;
-
-        if (taskCounter >= maxTasks)
-        {
-            EndSession();
-        }
-        else
-        {
-            PickRandomRequest();
-        }
     }
 
     void Start()
@@ -117,9 +64,9 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
             timeLimit = 60,
             instructions = new string[]
             {
-            "Click on the strength button twice.",
-            "Click on fresh.",
-            "Click on brew."
+                "Click on the strength button twice.",
+                "Click on fresh.",
+                "Click on brew."
             }
         });
 
@@ -129,9 +76,9 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
             timeLimit = 30,
             instructions = new string[]
             {
-            "Click on the strength button once.",
-            "Click on fresh.",
-            "Click on brew."
+                "Click on the strength button once.",
+                "Click on fresh.",
+                "Click on brew."
             }
         });
 
@@ -141,15 +88,19 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
             timeLimit = 10,
             instructions = new string[]
             {
-            "Click on brew."
+                "Click on brew."
             }
         });
-
-        // Add more requests + steps if you want!
     }
 
     void PickRandomRequest()
     {
+        if (taskCounter >= maxTasks)
+        {
+            EndSession();
+            return;
+        }
+
         int randomIndex = Random.Range(0, customerRequests.Count);
         CustomerRequest selectedRequest = customerRequests[randomIndex];
 
@@ -157,7 +108,6 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
         timeRemaining = selectedRequest.timeLimit;
         isTimerRunning = true;
 
-        // Display instructions
         instructionsText.text = "";
         foreach (string step in selectedRequest.instructions)
         {
@@ -174,22 +124,62 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
     void TimerFinished()
     {
         Debug.Log("Time is up!");
-
-        // Save the task result (failure)
         SaveTaskResult(false, timeRemaining);
-
-        // Pick the next random request automatically
         PickRandomRequest();
     }
+
+    public void OnTaskCompleted()
+    {
+        SaveTaskResult(true, timeRemaining);
+    }
+
+    void SaveTaskResult(bool success, float timeLeft)
+    {
+        FirebaseUser user = auth.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogWarning("User not logged in.");
+            return;
+        }
+
+        var taskData = new Dictionary<string, object>
+        {
+            { "request", customerRequestText.text },
+            { "completed", success },
+            { "timeRemaining", timeLeft },
+            { "timeTaken", success ? (customerRequests.Find(r => r.requestText == customerRequestText.text).timeLimit - timeLeft) : 0 },
+            { "timestamp", Timestamp.GetCurrentTimestamp() }
+        };
+
+        taskResults.Add(taskData);
+
+        firestore.Collection("users")
+            .Document(user.UserId)
+            .Collection("taskResults")
+            .AddAsync(taskData)
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsCompletedSuccessfully)
+                    Debug.Log("Task result saved!");
+                else
+                    Debug.LogError("Failed to save task result: " + task.Exception);
+            });
+
+        taskCounter++;
+
+        if (taskCounter >= maxTasks)
+            EndSession();
+        else
+            PickRandomRequest();
+    }
+
     void EndSession()
     {
         Debug.Log("Training session complete!");
-
         string performanceSummary = SummarizePerformance(taskResults);
-
-        // Get ChatGPT recommendation
         StartCoroutine(chatGPT.SendPerformanceSummary(performanceSummary, ShowFinalReport));
     }
+
     string SummarizePerformance(List<Dictionary<string, object>> results)
     {
         int tasksCompleted = 0;
@@ -201,7 +191,7 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
             if ((bool)task["completed"])
             {
                 tasksCompleted++;
-                totalTimeTaken += (task["timeTaken"] != null) ? (float)task["timeTaken"] : 0f;
+                totalTimeTaken += (float)task["timeTaken"];
             }
             else
             {
@@ -221,9 +211,4 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
         finalReportPanel.SetActive(true);
         finalReportText.text = "Session Complete!\n\n" + aiRecommendation;
     }
-    public void OnTaskCompleted()
-    {
-        SaveTaskResult(true, timeRemaining);
-    }
-
 }
