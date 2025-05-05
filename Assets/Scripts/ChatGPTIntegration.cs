@@ -5,6 +5,8 @@ using UnityEngine.Networking;
 using System.Collections;
 using Newtonsoft.Json; 
 using System.IO;
+using System;
+
 
 public class ChatGPTIntegration : MonoBehaviour
 {
@@ -43,7 +45,10 @@ else
     {
         string prompt = userInputField.text; // User prompt
         if (!string.IsNullOrEmpty(prompt))
-        {
+        {   
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            File.AppendAllText(Path.Combine(Application.persistentDataPath, "prompt_log.txt"), $"{timestamp} - {prompt}\n");
+
             StartCoroutine(SendRequest(prompt)); // Send prompt to GPT
             userInputField.text = "";
         }
@@ -101,16 +106,29 @@ else
             Debug.Log("Response: " + request.downloadHandler.text);
             ChatGPTResponse response = JsonUtility.FromJson<ChatGPTResponse>(request.downloadHandler.text);
             if (response != null && response.choices.Length > 0)
-            {
-                responseText.text = response.choices[0].message.content;
-            }
-            else
-            {
-                responseText.text = "No response received.";
+        {
+            string reply = response.choices[0].message.content;
+            responseText.text = reply;
+
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+            // Log response with timestamp
+            File.AppendAllText(Path.Combine(Application.persistentDataPath, "response_log.txt"), $"{timestamp} - {reply}\n");
+
+            // Display character count
+            int charCount = reply.Length;
+            responseText.text += $"\n\n(Character count: {charCount})";
+        }
+        else
+        {
+            responseText.text = "No valid response received.";
+}
+
+
             }
         }
     }
-}
+
 
 [System.Serializable]
 public class ChatGPTResponse
