@@ -1,0 +1,157 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using UnityEngine.Networking;
+using System.Collections;
+using Newtonsoft.Json; 
+using System.IO;
+using System;
+
+
+public class ChatGPTIntegration : MonoBehaviour
+{
+    public TMP_InputField userInputField;
+    public Button sendButton;
+    public TextMeshProUGUI responseText;
+
+    private string apiKey = ""; // API key goes here. 
+
+    private string apiURL = "https://api.openai.com/v1/chat/completions";
+
+void Start()
+{
+    string envPath = Path.Combine(Application.streamingAssetsPath, ".env");
+    Debug.Log("Reading .env from: " + envPath);
+
+    var env = EnvLoader.LoadEnv(envPath);
+    if (env.ContainsKey("OPENAI_API_KEY"))
+{
+    apiKey = env["OPENAI_API_KEY"];
+    Debug.Log("API key loaded from .env: " + apiKey); // Debug output
+}
+else
+{
+    Debug.LogWarning("API key not found in .env file!");
+}
+
+
+    sendButton.onClick.AddListener(HandleSendButtonClick);
+}
+
+    
+    // Action when button is pressed
+    public void HandleSendButtonClick()
+
+    {
+        string prompt = userInputField.text; // User prompt
+        if (!string.IsNullOrEmpty(prompt))
+        {   
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            File.AppendAllText(Path.Combine(Application.persistentDataPath, "prompt_log.txt"), $"{timestamp} - {prompt}\n");
+
+            StartCoroutine(SendRequest(prompt)); // Send prompt to GPT
+            userInputField.text = "";
+        }
+    }
+
+    private IEnumerator SendRequest(string prompt) // sends request to ChatGPT
+    {
+        responseText.text = "Let me think for a second...";
+
+        // Constructing the request object
+        ChatGPTRequest requestData = new ChatGPTRequest
+        {
+            model = "gpt-3.5-turbo", // Model of GPT
+            messages = new Message[] { new Message { role = "user", content = prompt } } 
+        };
+        
+        // Convert the request object to JSON using Newtonsoft.Json
+        // TODO: Add support for system messages or role-based chat context
+        //Test
+
+        string jsonData = JsonConvert.SerializeObject(requestData);
+        Debug.Log("Sending JSON: " + jsonData);
+
+        var request = new UnityWebRequest(apiURL, "POST");
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
+        
+        // Set headers
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("Authorization", "Bearer " + apiKey);
+        Debug.Log("Authorization Header: Bearer " + apiKey);
+
+
+        // Send the request and wait for the response 
+        yield return request.SendWebRequest();
+
+        // If error encountered 
+        if (request.result == UnityWebRequest.Result.ConnectionError ||
+            request.result == UnityWebRequest.Result.ProtocolError)
+        {
+            Debug.LogError("Request failed" + request.error);
+            Debug.LogError("Raw response: " + request.downloadHandler.text);
+            
+            // Log headers that are present
+            foreach (var header in request.GetResponseHeaders())
+            {
+                Debug.Log($"Header: {header.Key} = {header.Value}");
+            }
+            responseText.text = "Error: " + request.error;
+        }
+        else
+        {
+            // GPT's response
+            Debug.Log("Response: " + request.downloadHandler.text);
+            ChatGPTResponse response = JsonUtility.FromJson<ChatGPTResponse>(request.downloadHandler.text);
+            if (response != null && response.choices.Length > 0)
+        {
+            string reply = response.choices[0].message.content;
+            responseText.text = reply;
+
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+            // Log response with timestamp
+            File.AppendAllText(Path.Combine(Application.persistentDataPath, "response_log.txt"), $"{timestamp} - {reply}\n");
+
+            // Display character count
+            int charCount = reply.Length;
+            responseText.text += $"\n\n(Character count: {charCount})";
+        }
+        else
+        {
+            responseText.text = "No valid response received.";
+}
+
+
+            }
+        }
+    }
+
+
+[System.Serializable]
+public class ChatGPTResponse
+{
+    public Choice[] choices;
+}
+
+[System.Serializable]
+public class Choice
+{
+    public Message message;
+}
+
+[System.Serializable]
+public class ChatGPTRequest
+{
+    public string model;
+    public Message[] messages;
+}
+
+[System.Serializable]
+public class Message
+{
+    public string role;
+    public string content;
+}
