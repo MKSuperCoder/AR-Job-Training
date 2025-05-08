@@ -20,7 +20,7 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
     private FirebaseFirestore firestore;
     private FirebaseAuth auth;
     private int taskCounter = 0;
-    private int maxTasks = 5;
+    private int maxTasks = 3;
     public GameObject finalReportPanel;
     public TMP_Text finalReportText;
 
@@ -75,7 +75,7 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
         // Increment task counter
         taskCounter++;
 
-        if (taskCounter >= maxTasks)
+        if (taskCounter > maxTasks)
         {
             EndSession();
         }

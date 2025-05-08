@@ -82,29 +82,25 @@ public class ARFoodPlacementManager : MonoBehaviour
         {
             Pose pose = hits[0].pose;
 
-            // Create an invisible parent as the anchor point
-            GameObject anchorPoint = new GameObject("HighlightAnchor");
-            anchorPoint.transform.position = pose.position;
-            highlightParent = anchorPoint.transform;
-
-            // Place highlights relative to anchor
-            highlightBurger.transform.position = highlightParent.position + new Vector3(-0.1f, 0f, 0.1f);
-            highlightFries.transform.position = highlightParent.position + new Vector3(0.0f, 0f, 0.1f);
-            highlightDrink.transform.position = highlightParent.position + new Vector3(0.1f, 0f, 0.1f);
+            // Place highlights at slightly different nearby positions
+            highlightBurger.transform.position = pose.position + new Vector3(-0.2f, 0f, 0.2f);
+            highlightFries.transform.position = pose.position + new Vector3(0.0f, 0f, 0.2f);
+            highlightDrink.transform.position = pose.position + new Vector3(0.2f, 0f, 0.2f);
 
             highlightPlaced = true;
         }
     }
 
+
     void ShowHighlightFor(GameObject item)
     {
         HideAllHighlights();
 
-        if (item.name.ToLower().Contains("Burger"))
+        if (item.name.Contains("Burger"))
             highlightBurger.SetActive(true);
-        else if (item.name.ToLower().Contains("Fries"))
+        else if (item.name.Contains("Fries"))
             highlightFries.SetActive(true);
-        else if (item.name.ToLower().Contains("FountainCup"))
+        else if (item.name.Contains("FountainCup"))
             highlightDrink.SetActive(true);
     }
 
