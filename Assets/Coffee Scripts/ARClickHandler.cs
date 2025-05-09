@@ -59,6 +59,17 @@ public class ARClickHandler : MonoBehaviour
         ARClickHandler handler = clickedObject.GetComponent<ARClickHandler>();
         if (handler == null) return;
 
+        CoffeeMachineTrainingManager trainingManager = FindObjectOfType<CoffeeMachineTrainingManager>();
+
+        if (buttonType != ButtonType.Brew)  // Only validate clicks before brewing
+        {
+            if (trainingManager != null)
+            {
+                bool valid = trainingManager.RegisterButtonClick(buttonType);
+                if (!valid)
+                    return; // Stop further actions
+            }
+        }
         switch (handler.buttonType)
         { 
             case ButtonType.Strength:
@@ -81,6 +92,8 @@ public class ARClickHandler : MonoBehaviour
                 StartCoroutine(HandleBrewSequence());
                 break;
         }
+       
+
 
     }
     private IEnumerator HandleBrewSequence()
@@ -111,6 +124,12 @@ public class ARClickHandler : MonoBehaviour
             if (trainingManager != null)
             {
                 trainingManager.OnTaskCompleted(); // trigger next task and save result
+                                                   // Reset strength level after each task
+                ARClickHandler handler = FindObjectOfType<ARClickHandler>();
+                if (handler != null)
+                {
+                    handler.ResetStrengthLevel();
+                }
             }
         }
 
@@ -169,4 +188,11 @@ public class ARClickHandler : MonoBehaviour
         if (servedCoffee != null)
             servedCoffee.SetActive(false);
     }
+    public void ResetStrengthLevel()
+    {
+        strengthLevel = 0;
+        if (strengthText != null)
+            strengthText.text = "Strength: 0";
+    }
+
 }

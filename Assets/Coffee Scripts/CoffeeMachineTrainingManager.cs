@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -5,84 +6,33 @@ using Firebase.Firestore;
 using Firebase.Auth;
 using Firebase.Extensions;
 
-
 public class CoffeeMachineTrainingManager : MonoBehaviour
 {
-    public TMP_Text customerRequestText; // Assign in Inspector
+    public TMP_Text customerRequestText;
     public TMP_Text instructionsText;
-    public TMP_Text timerText;            // Assign in Inspector
-    private ChatGPT chatGPT;
-
-    public List<CustomerRequest> customerRequests = new List<CustomerRequest>();
-
-    private float timeRemaining;
-    private bool isTimerRunning = false;
-    private FirebaseFirestore firestore;
-    private FirebaseAuth auth;
-    private int taskCounter = 0;
-    private int maxTasks = 3;
+    public TMP_Text timerText;
+    public TMP_Text errorMessageText;
     public GameObject finalReportPanel;
     public TMP_Text finalReportText;
 
-    // To store each task's performance
-    private List<Dictionary<string, object>> taskResults = new List<Dictionary<string, object>>();
+    private ChatGPT chatGPT;
+    private FirebaseFirestore firestore;
+    private FirebaseAuth auth;
 
+    public List<CustomerRequest> customerRequests = new List<CustomerRequest>();
+    private List<Dictionary<string, object>> taskResults = new List<Dictionary<string, object>>();
+    public List<ARClickHandler.ButtonType> userActions = new List<ARClickHandler.ButtonType>();
+
+    private float timeRemaining;
+    private bool isTimerRunning = false;
+    private int taskCounter = 0;
+    private int maxTasks = 3;
 
     void Awake()
     {
         firestore = FirebaseFirestore.DefaultInstance;
         auth = FirebaseAuth.DefaultInstance;
         chatGPT = FindObjectOfType<ChatGPT>();
-    }
-    void SaveTaskResult(bool success, float timeLeft)
-    {
-        FirebaseUser user = auth.CurrentUser;
-        if (user == null)
-        {
-            Debug.LogWarning("User not logged in.");
-            return;
-        }
-
-        var taskData = new Dictionary<string, object>
-    {
-        { "request", customerRequestText.text },
-        { "completed", success },
-        { "timeRemaining", timeLeft },
-        { "timeTaken", (success ? (customerRequests.Find(r => r.requestText == customerRequestText.text).timeLimit - timeLeft) : null) },
-        { "timestamp", Timestamp.GetCurrentTimestamp() }
-    };
-
-        // Save to local list
-        taskResults.Add(taskData);
-
-        // Save to Firestore
-        firestore.Collection("users")
-                 .Document(user.UserId)
-                 .Collection("taskResults")
-                 .AddAsync(taskData)
-                 .ContinueWithOnMainThread(task =>
-                 {
-                     if (task.IsCompletedSuccessfully)
-                     {
-                         Debug.Log("Task result saved!");
-                     }
-                     else
-                     {
-                         Debug.LogError("Failed to save task result: " + task.Exception);
-                     }
-                 });
-
-        // Increment task counter
-        taskCounter++;
-
-        if (taskCounter > maxTasks)
-        {
-            EndSession();
-        }
-        else
-        {
-            PickRandomRequest();
-        }
     }
 
     void Start()
@@ -93,19 +43,16 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
 
     void Update()
     {
-        if (isTimerRunning)
+        if (isTimerRunning && timeRemaining > 0)
         {
-            if (timeRemaining > 0)
-            {
-                timeRemaining -= Time.deltaTime;
-                UpdateTimerUI();
-            }
-            else
-            {
-                timeRemaining = 0;
-                isTimerRunning = false;
-                TimerFinished();
-            }
+            timeRemaining -= Time.deltaTime;
+            UpdateTimerUI();
+        }
+        else if (isTimerRunning)
+        {
+            timeRemaining = 0;
+            isTimerRunning = false;
+            TimerFinished();
         }
     }
 
@@ -117,10 +64,17 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
             timeLimit = 60,
             instructions = new string[]
             {
-            "Click on the strength button twice.",
-            "Click on fresh.",
-            "Click on brew."
-            }
+                "Click on the strength button twice.",
+                "Click on fresh.",
+                "Click on brew."
+            },
+            expectedActions = new ARClickHandler.ButtonType[]
+            {
+                ARClickHandler.ButtonType.Strength,
+                ARClickHandler.ButtonType.Strength,
+                ARClickHandler.ButtonType.Fresh,
+                ARClickHandler.ButtonType.Brew
+            }       
         });
 
         customerRequests.Add(new CustomerRequest
@@ -129,9 +83,15 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
             timeLimit = 30,
             instructions = new string[]
             {
-            "Click on the strength button once.",
-            "Click on fresh.",
-            "Click on brew."
+                "Click on the strength button once.",
+                "Click on fresh.",
+                "Click on brew."
+            },
+            expectedActions = new ARClickHandler.ButtonType[]
+            {
+                ARClickHandler.ButtonType.Strength,
+                ARClickHandler.ButtonType.Fresh,
+                ARClickHandler.ButtonType.Brew
             }
         });
 
@@ -141,89 +101,154 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
             timeLimit = 10,
             instructions = new string[]
             {
-            "Click on brew."
+                "Click on brew."
+            },
+            expectedActions = new ARClickHandler.ButtonType[]
+            {
+                ARClickHandler.ButtonType.Brew
             }
         });
-
-        // Add more requests + steps if you want!
     }
 
     void PickRandomRequest()
     {
-        int randomIndex = Random.Range(0, customerRequests.Count);
-        CustomerRequest selectedRequest = customerRequests[randomIndex];
+        userActions.Clear();
+        int index = Random.Range(0, customerRequests.Count);
+        var request = customerRequests[index];
 
-        customerRequestText.text = selectedRequest.requestText;
-        timeRemaining = selectedRequest.timeLimit;
+        customerRequestText.text = request.requestText;
+        instructionsText.text = string.Join("\n", request.instructions);
+        timeRemaining = request.timeLimit;
         isTimerRunning = true;
-
-        // Display instructions
-        instructionsText.text = "";
-        foreach (string step in selectedRequest.instructions)
-        {
-            instructionsText.text += "- " + step + "\n";
-        }
     }
 
     void UpdateTimerUI()
     {
-        int seconds = Mathf.CeilToInt(timeRemaining);
-        timerText.text = seconds.ToString();
+        timerText.text = Mathf.CeilToInt(timeRemaining).ToString();
     }
 
     void TimerFinished()
     {
         Debug.Log("Time is up!");
-
-        // Save the task result (failure)
+        ShowErrorMessage("You ran out of time!");
         SaveTaskResult(false, timeRemaining);
-
-        // Pick the next random request automatically
         PickRandomRequest();
     }
-    void EndSession()
-    {
-        Debug.Log("Training session complete!");
 
-        string performanceSummary = SummarizePerformance(taskResults);
-
-        // Get ChatGPT recommendation
-        StartCoroutine(chatGPT.SendPerformanceSummary(performanceSummary, ShowFinalReport));
-    }
-    string SummarizePerformance(List<Dictionary<string, object>> results)
-    {
-        int tasksCompleted = 0;
-        int tasksFailed = 0;
-        float totalTimeTaken = 0f;
-
-        foreach (var task in results)
-        {
-            if ((bool)task["completed"])
-            {
-                tasksCompleted++;
-                totalTimeTaken += (task["timeTaken"] != null) ? (float)task["timeTaken"] : 0f;
-            }
-            else
-            {
-                tasksFailed++;
-            }
-        }
-
-        float avgTime = tasksCompleted > 0 ? totalTimeTaken / tasksCompleted : 0f;
-
-        return $"The user completed {tasksCompleted} out of {results.Count} tasks successfully. " +
-               $"Average time per successful task: {avgTime:F1} seconds. " +
-               $"{tasksFailed} tasks were failed.";
-    }
-
-    void ShowFinalReport(string aiRecommendation)
-    {
-        finalReportPanel.SetActive(true);
-        finalReportText.text = "Session Complete!\n\n" + aiRecommendation;
-    }
     public void OnTaskCompleted()
     {
         SaveTaskResult(true, timeRemaining);
+    }
+
+    void SaveTaskResult(bool success, float timeLeft)
+    {
+        FirebaseUser user = auth.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogWarning("User not logged in.");
+            return;
+        }
+
+        var request = customerRequestText.text;
+        var timeTaken = success ? customerRequests.Find(r => r.requestText == request).timeLimit - timeLeft : (float?)null;
+
+        var result = new Dictionary<string, object>
+        {
+            {"request", request},
+            {"completed", success},
+            {"timeRemaining", timeLeft},
+            {"timeTaken", timeTaken},
+            {"timestamp", Timestamp.GetCurrentTimestamp() }
+        };
+
+        taskResults.Add(result);
+
+        firestore.Collection("users")
+                 .Document(user.UserId)
+                 .Collection("taskResults")
+                 .AddAsync(result)
+                 .ContinueWithOnMainThread(task =>
+                 {
+                     if (!task.IsCompletedSuccessfully)
+                         Debug.LogError("Failed to save: " + task.Exception);
+                 });
+
+        taskCounter++;
+
+        if (taskCounter >= maxTasks)
+            EndSession();
+        else
+            PickRandomRequest();
+    }
+
+    void EndSession()
+    {
+        string summary = SummarizePerformance(taskResults);
+        StartCoroutine(chatGPT.SendPerformanceSummary(summary, ShowFinalReport));
+    }
+
+    string SummarizePerformance(List<Dictionary<string, object>> results)
+    {
+        int completed = 0, failed = 0;
+        float totalTime = 0f;
+
+        foreach (var r in results)
+        {
+            if ((bool)r["completed"])
+            {
+                completed++;
+                if (r["timeTaken"] != null)
+                    totalTime += (float)r["timeTaken"];
+            }
+            else failed++;
+        }
+
+        float avgTime = completed > 0 ? totalTime / completed : 0f;
+
+        return $"Completed {completed}/{results.Count}. Avg time: {avgTime:F1}s. Failed: {failed}.";
+    }
+
+    void ShowFinalReport(string aiFeedback)
+    {
+        finalReportPanel.SetActive(true);
+        finalReportText.text = "Session Complete!\n\n" + aiFeedback;
+    }
+
+    public void ShowErrorMessage(string message, float duration = 2f)
+    {
+        errorMessageText.gameObject.SetActive(true);
+        errorMessageText.text = message;
+        StartCoroutine(HideErrorMessageAfterDelay(duration));
+    }
+
+    private IEnumerator HideErrorMessageAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        errorMessageText.gameObject.SetActive(false);
+    }
+    public bool RegisterButtonClick(ARClickHandler.ButtonType clickedButton)
+    {
+        var currentRequest = customerRequests.Find(r => r.requestText == customerRequestText.text);
+        userActions.Add(clickedButton);
+
+        // If user has clicked more than expected steps, it's an error
+        if (userActions.Count > currentRequest.expectedActions.Length)
+        {
+            ShowErrorMessage("Too many steps!");
+            return false;
+        }
+
+        // Compare each clicked action to expected
+        for (int i = 0; i < userActions.Count; i++)
+        {
+            if (userActions[i] != currentRequest.expectedActions[i])
+            {
+                ShowErrorMessage("Wrong action!");
+                return false;
+            }
+        }
+
+        return true; // So far, it's valid
     }
 
 }
