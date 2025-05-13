@@ -14,6 +14,9 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
     public TMP_Text errorMessageText;
     public GameObject finalReportPanel;
     public TMP_Text finalReportText;
+    public GameObject errorOverlayPanel;
+    public UnityEngine.UI.Button continueButton;
+
 
     private ChatGPT chatGPT;
     private FirebaseFirestore firestore;
@@ -214,12 +217,19 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
         finalReportText.text = "Session Complete!\n\n" + aiFeedback;
     }
 
-    public void ShowErrorMessage(string message, float duration = 2f)
+    public void ShowErrorMessage(string message)
     {
+        isTimerRunning = false; // Pause timer
+        errorOverlayPanel.SetActive(true);
         errorMessageText.gameObject.SetActive(true);
+        continueButton.gameObject.SetActive(true);
         errorMessageText.text = message;
-        StartCoroutine(HideErrorMessageAfterDelay(duration));
+
+        // Add listener to resume when button is clicked
+        continueButton.onClick.RemoveAllListeners(); // Prevent stacking events
+        continueButton.onClick.AddListener(HideErrorOverlay);
     }
+
 
     private IEnumerator HideErrorMessageAfterDelay(float delay)
     {
@@ -249,6 +259,21 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
         }
 
         return true; // So far, it's valid
+    }
+    public void HideErrorOverlay()
+    {
+        errorOverlayPanel.SetActive(false);
+        isTimerRunning = true;
+    }
+    public void OnContinueButtonClicked()
+    {
+        // Disable UI elements
+        if (continueButton != null) continueButton.gameObject.SetActive(false);
+        if (errorMessageText != null) errorMessageText.gameObject.SetActive(false);
+        if (errorOverlayPanel != null) errorOverlayPanel.SetActive(false);
+
+        // Resume the timer
+        isTimerRunning = true;
     }
 
 }
