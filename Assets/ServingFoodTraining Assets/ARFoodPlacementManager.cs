@@ -19,6 +19,19 @@ public class ARFoodPlacementManager : MonoBehaviour
     private bool highlightPlaced = false;
     private Transform highlightParent; // Base reference point for highlight positions
 
+    public TMP_Text taskText;
+    public TMP_Text instructionsText;
+    public GameObject finalReportPanel;
+    public TMP_Text finalReportText;
+
+    public ChatGPT chatGPT;
+
+    private List<FoodPlacementTask> tasks = new List<FoodPlacementTask>();
+    private List<Dictionary<string, object>> taskResults = new List<Dictionary<string, object>>();
+    private int currentTaskIndex = 0;
+    private GameObject lastPlacedObject;
+
+
     void Start()
     {
         raycastManager = FindObjectOfType<ARRaycastManager>();
