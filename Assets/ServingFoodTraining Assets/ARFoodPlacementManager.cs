@@ -147,4 +147,25 @@ public class ARFoodPlacementManager : MonoBehaviour
         highlightFries.SetActive(false);
         highlightDrink.SetActive(false);
     }
+    void EndSession()
+    {
+        string summary = SummarizePerformance(taskResults);
+        StartCoroutine(chatGPT.SendPerformanceSummary(summary, ShowFinalReport));
+    }
+
+    string SummarizePerformance(List<Dictionary<string, object>> results)
+    {
+        int completed = 0;
+        foreach (var r in results)
+            if ((bool)r["completed"]) completed++;
+
+        return $"Completed {completed}/{results.Count} food placements.";
+    }
+
+    void ShowFinalReport(string aiFeedback)
+    {
+        finalReportPanel.SetActive(true);
+        finalReportText.text = "Session Complete!\n\n" + aiFeedback;
+    }
+
 }
