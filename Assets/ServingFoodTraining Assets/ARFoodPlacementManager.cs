@@ -41,7 +41,31 @@ public class ARFoodPlacementManager : MonoBehaviour
         highlightBurger.SetActive(false);
         highlightFries.SetActive(false);
         highlightDrink.SetActive(false);
+        SetupTasks();
+        DisplayCurrentTask();
+
     }
+    void SetupTasks()
+    {
+        tasks.Add(new FoodPlacementTask
+        {
+            taskDescription = "Place the burger at the left position.",
+            instructions = new string[] { "Tap and drag the burger.", "Place it on the left highlight." },
+            expectedObjectName = "Burger",
+            expectedPosition = highlightBurger.transform.position
+        });
+
+        tasks.Add(new FoodPlacementTask
+        {
+            taskDescription = "Place the fries in the center.",
+            instructions = new string[] { "Tap and drag the fries.", "Place it on the center highlight." },
+            expectedObjectName = "Fries",
+            expectedPosition = highlightFries.transform.position
+        });
+
+        // Add more tasks...
+    }
+
 
     void Update()
     {
