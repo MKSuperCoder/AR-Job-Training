@@ -74,6 +74,22 @@ public class ARFoodPlacementManager : MonoBehaviour
                 selectedObject = null;
             }
         }
+
+
+
+        if (selectedObject != null)
+{
+    var task = tasks[currentTaskIndex];
+    lastPlacedObject = selectedObject;
+
+    float distance = Vector3.Distance(selectedObject.transform.position, task.expectedPosition);
+    bool correctObject = selectedObject.name.Contains(task.expectedObjectName);
+    bool correctPosition = distance < 0.1f;
+
+    SaveTaskResult(correctObject && correctPosition);
+    HideAllHighlights();
+    selectedObject = null;
+}
     }
 
     void TryPlaceHighlightBase()
@@ -114,4 +130,22 @@ public class ARFoodPlacementManager : MonoBehaviour
         highlightFries.SetActive(false);
         highlightDrink.SetActive(false);
     }
+
+    void SaveTaskResult(bool success)
+{
+    var result = new Dictionary<string, object>
+    {
+        {"task", tasks[currentTaskIndex].taskDescription},
+        {"completed", success},
+        {"timestamp", System.DateTime.Now.ToString()}
+    };
+
+    taskResults.Add(result);
+
+    currentTaskIndex++;
+    if (currentTaskIndex >= tasks.Count)
+        EndSession();
+    else
+        DisplayCurrentTask();
+}
 }
