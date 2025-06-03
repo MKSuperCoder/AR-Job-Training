@@ -8,7 +8,7 @@ using Firebase.Firestore;
 using Firebase.Auth;
 using Firebase.Extensions;
 
-public class ARFoodTrainingManager : MonoBehaviour
+public class ARFoodPlacementManager : MonoBehaviour
 {
     public GameObject highlightBurger;
     public GameObject highlightFries;
