@@ -1,50 +1,95 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using System.Collections.Generic;
+using TMPro;
+using Firebase.Firestore;
+using Firebase.Auth;
+using Firebase.Extensions;
 
-public class ARFoodPlacementManager : MonoBehaviour
+public class ARFoodTrainingManager : MonoBehaviour
 {
     public GameObject highlightBurger;
     public GameObject highlightFries;
     public GameObject highlightDrink;
 
-    public ARRaycastManager raycastManager;
-    public ARPlaneManager planeManager;
-
-    private GameObject selectedObject;
-    private Vector2 touchPosition;
-    private List<ARRaycastHit> hits = new List<ARRaycastHit>();
-
-    private bool highlightPlaced = false;
-    private Transform highlightParent; // Base reference point for highlight positions
-
     public TMP_Text taskText;
     public TMP_Text instructionsText;
-    public GameObject finalReportPanel;
+    public TMP_Text errorMessageText;
     public TMP_Text finalReportText;
+    public GameObject finalReportPanel;
+    public GameObject errorOverlayPanel;
+    public UnityEngine.UI.Button continueButton;
 
-    public ChatGPT chatGPT;
+    private ARRaycastManager raycastManager;
+    private ARPlaneManager planeManager;
+    private ChatGPT chatGPT;
+    private FirebaseFirestore firestore;
+    private FirebaseAuth auth;
+
+    private List<ARRaycastHit> hits = new List<ARRaycastHit>();
+    private GameObject selectedObject;
+    private bool highlightPlaced = false;
 
     private List<FoodPlacementTask> tasks = new List<FoodPlacementTask>();
     private List<Dictionary<string, object>> taskResults = new List<Dictionary<string, object>>();
     private int currentTaskIndex = 0;
-    private GameObject lastPlacedObject;
 
-
-    void Start()
+    void Awake()
     {
         raycastManager = FindObjectOfType<ARRaycastManager>();
         planeManager = FindObjectOfType<ARPlaneManager>();
+        chatGPT = FindObjectOfType<ChatGPT>();
+        firestore = FirebaseFirestore.DefaultInstance;
+        auth = FirebaseAuth.DefaultInstance;
+    }
 
-        // Hide highlights initially
-        highlightBurger.SetActive(false);
-        highlightFries.SetActive(false);
-        highlightDrink.SetActive(false);
+    void Start()
+    {
         SetupTasks();
         DisplayCurrentTask();
-
+        HideAllHighlights();
     }
+
+    void Update()
+    {
+        if (!highlightPlaced)
+        {
+            TryPlaceHighlightBase();
+            return;
+        }
+
+        if (Input.touchCount == 0) return;
+
+        Touch touch = Input.GetTouch(0);
+        Vector2 touchPosition = touch.position;
+
+        if (touch.phase == TouchPhase.Began)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(touch.position);
+            if (Physics.Raycast(ray, out RaycastHit hit) && hit.collider.CompareTag("Draggable"))
+            {
+                selectedObject = hit.collider.gameObject;
+                ShowHighlightFor(selectedObject);
+            }
+        }
+
+        if (touch.phase == TouchPhase.Moved && selectedObject != null)
+        {
+            if (raycastManager.Raycast(touchPosition, hits, TrackableType.PlaneWithinPolygon))
+            {
+                selectedObject.transform.position = hits[0].pose.position;
+            }
+        }
+
+        if (touch.phase == TouchPhase.Ended && selectedObject != null)
+        {
+            EvaluatePlacement(selectedObject);
+            selectedObject = null;
+        }
+    }
+
     void SetupTasks()
     {
         tasks.Add(new FoodPlacementTask
@@ -62,55 +107,13 @@ public class ARFoodPlacementManager : MonoBehaviour
             expectedObjectName = "Fries",
             expectedPosition = highlightFries.transform.position
         });
-
-        // Add more tasks...
     }
 
-
-    void Update()
+    void DisplayCurrentTask()
     {
-        if (!highlightPlaced)
-        {
-            TryPlaceHighlightBase();
-            return;
-        }
-
-        if (Input.touchCount == 0)
-            return;
-
-        Touch touch = Input.GetTouch(0);
-        touchPosition = touch.position;
-
-        if (touch.phase == TouchPhase.Began)
-        {
-            Ray ray = Camera.main.ScreenPointToRay(touch.position);
-            if (Physics.Raycast(ray, out RaycastHit hit) && hit.collider != null)
-            {
-                if (hit.collider.CompareTag("Draggable"))
-                {
-                    selectedObject = hit.collider.gameObject;
-                    ShowHighlightFor(selectedObject);
-                }
-            }
-        }
-
-        if (touch.phase == TouchPhase.Moved && selectedObject != null)
-        {
-            if (raycastManager.Raycast(touchPosition, hits, TrackableType.PlaneWithinPolygon))
-            {
-                Pose hitPose = hits[0].pose;
-                selectedObject.transform.position = hitPose.position;
-            }
-        }
-
-        if (touch.phase == TouchPhase.Ended)
-        {
-            if (selectedObject != null)
-            {
-                HideAllHighlights();
-                selectedObject = null;
-            }
-        }
+        var task = tasks[currentTaskIndex];
+        taskText.text = task.taskDescription;
+        instructionsText.text = string.Join("\n", task.instructions);
     }
 
     void TryPlaceHighlightBase()
@@ -118,27 +121,19 @@ public class ARFoodPlacementManager : MonoBehaviour
         if (raycastManager.Raycast(new Vector2(Screen.width / 2, Screen.height / 2), hits, TrackableType.PlaneWithinPolygon))
         {
             Pose pose = hits[0].pose;
-
-            // Place highlights at slightly different nearby positions
             highlightBurger.transform.position = pose.position + new Vector3(-0.2f, 0f, 0.2f);
             highlightFries.transform.position = pose.position + new Vector3(0.0f, 0f, 0.2f);
             highlightDrink.transform.position = pose.position + new Vector3(0.2f, 0f, 0.2f);
-
             highlightPlaced = true;
         }
     }
 
-
     void ShowHighlightFor(GameObject item)
     {
         HideAllHighlights();
-
-        if (item.name.Contains("Burger"))
-            highlightBurger.SetActive(true);
-        else if (item.name.Contains("Fries"))
-            highlightFries.SetActive(true);
-        else if (item.name.Contains("FountainCup"))
-            highlightDrink.SetActive(true);
+        if (item.name.Contains("Burger")) highlightBurger.SetActive(true);
+        else if (item.name.Contains("Fries")) highlightFries.SetActive(true);
+        else if (item.name.Contains("FountainCup")) highlightDrink.SetActive(true);
     }
 
     void HideAllHighlights()
@@ -147,6 +142,53 @@ public class ARFoodPlacementManager : MonoBehaviour
         highlightFries.SetActive(false);
         highlightDrink.SetActive(false);
     }
+
+    void EvaluatePlacement(GameObject placedObject)
+    {
+        var task = tasks[currentTaskIndex];
+        float distance = Vector3.Distance(placedObject.transform.position, task.expectedPosition);
+        bool correctObject = placedObject.name.Contains(task.expectedObjectName);
+        bool correctPosition = distance < 0.1f;
+
+        SaveTaskResult(correctObject && correctPosition);
+        HideAllHighlights();
+    }
+
+    void SaveTaskResult(bool success)
+    {
+        FirebaseUser user = auth.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogWarning("User not logged in.");
+            return;
+        }
+
+        var result = new Dictionary<string, object>
+        {
+            {"task", tasks[currentTaskIndex].taskDescription},
+            {"completed", success},
+            {"timestamp", Timestamp.GetCurrentTimestamp() }
+        };
+
+        taskResults.Add(result);
+
+        firestore.Collection("users")
+            .Document(user.UserId)
+            .Collection("foodPlacementResults")
+            .AddAsync(result)
+            .ContinueWithOnMainThread(task =>
+            {
+                if (!task.IsCompletedSuccessfully)
+                    Debug.LogError("Failed to save: " + task.Exception);
+            });
+
+        currentTaskIndex++;
+        if (currentTaskIndex >= tasks.Count)
+            EndSession();
+        else
+            DisplayCurrentTask();
+    }
+
     void EndSession()
     {
         string summary = SummarizePerformance(taskResults);
@@ -168,4 +210,26 @@ public class ARFoodPlacementManager : MonoBehaviour
         finalReportText.text = "Session Complete!\n\n" + aiFeedback;
     }
 
+    public void ShowErrorMessage(string message)
+    {
+        errorOverlayPanel.SetActive(true);
+        errorMessageText.gameObject.SetActive(true);
+        continueButton.gameObject.SetActive(true);
+        errorMessageText.text = message;
+
+        continueButton.onClick.RemoveAllListeners();
+        continueButton.onClick.AddListener(HideErrorOverlay);
+    }
+
+    public void HideErrorOverlay()
+    {
+        errorOverlayPanel.SetActive(false);
+    }
+
+    public void OnContinueButtonClicked()
+    {
+        continueButton.gameObject.SetActive(false);
+        errorMessageText.gameObject.SetActive(false);
+        errorOverlayPanel.SetActive(false);
+    }
 }

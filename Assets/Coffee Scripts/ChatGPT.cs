@@ -35,21 +35,21 @@ public class ChatGPT : MonoBehaviour
         {
             model = "gpt-3.5-turbo",
             messages = new Message[]
-        {
-            new Message
             {
-                role = "system",
-                content = "You are a friendly and encouraging training coach. Based on the user's performance, provide feedback in two sections:\n\n" +
+                new Message
+                {
+                    role = "system",
+                    content = "You are a friendly and encouraging training coach. Based on the user's performance, provide feedback in two sections:\n\n" +
                         "Section 1: 'Your Performance' — summarize the time taken, accuracy, whether the strength level and coffee type were set correctly.\n" +
                         "Section 2: 'Recommendation' — list 3 to 4 suggestions in numbered format. These can include improvement tips and a next module suggestion.\n\n" +
                         "Keep it concise and helpful. Return the response using exactly these two labeled sections."
-            },
-            new Message
-            {
-                role = "user",
-                content = "Here is the user's training performance: " + performanceSummary
+                },
+                new Message
+                {
+                    role = "user",
+                    content = "Here is the user's training performance: " + performanceSummary
+                }
             }
-        };
         };
 
         string jsonData = JsonConvert.SerializeObject(requestData);
