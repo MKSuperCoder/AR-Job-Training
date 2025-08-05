@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1076830223759:ios:59b21d6f351a9a3a6d1ffa",
+        "mobilesdk_app_id": "1:1076830223759:ios:70986bc974f3dc146d1ffa",
         "android_client_info": {
-          "package_name": "com.marcusswa.artrainer"
+          "package_name": "com.marcusswa.arjobtrainer"
         }
       },
       "api_key": [

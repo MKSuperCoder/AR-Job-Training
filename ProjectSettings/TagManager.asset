@@ -8,6 +8,15 @@ TagManager:
   - Yellow
   - ARButton
   - Draggable
+  - Tray
+  - Liquid
+  - Mess
+  - Towel
+  - Basket
+  - Brush
+  - Tissue
+  - MopArea
+  - Mop
   layers:
   - Default
   - TransparentFX
@@ -17,7 +26,7 @@ TagManager:
   - UI
   - 
   - 
-  - 
+  - Interactable
   - 
   - 
   - 
