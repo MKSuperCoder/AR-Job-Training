@@ -228,9 +228,9 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
     public void OnTaskCompleted()
     {
         float timeTaken = Time.time - requestStartTime;
-        float requestTimeLimit = customerRequests[currentRequestIndex].timeLimit;
-        float timeRemainingForTask = Mathf.Max(0, requestTimeLimit - timeTaken);
-        totalTimeRemaining += timeRemainingForTask;
+        //float requestTimeLimit = customerRequests[currentRequestIndex].timeLimit;
+       // float timeRemainingForTask = Mathf.Max(0, requestTimeLimit - timeTaken);
+        //totalTimeRemaining += timeRemainingForTask;
 
         Debug.Log("Task completed.");
 
@@ -419,7 +419,7 @@ public class CoffeeMachineTrainingManager : MonoBehaviour
         requestStartTime = Time.time;
         currentInstructionIndex = 0;
         UpdateInstructionArrow();
-        StartCountdown(); // Start the countdown here
+        //StartCountdown(); // Start the countdown here
     }
 
     public void StartCountdown()
